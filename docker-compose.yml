@@ -1,0 +1,28 @@
+version: '3.1'
+
+volumes:
+  pg_library:
+
+services:
+  library_db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1237
+      - POSTGRES_DB=project1
+    volumes:
+      - pg_library:/var/lib/postgresql/data
+      - ./project1_db.sql:/docker-entrypoint-initdb.d/project1_db.sql
+    ports:
+      - "127.0.0.1:5433:5432"
+  app:
+    restart: always
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - library_db
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://library_db:5432/project1'
+      JAVA-OPTS: '-Xmx512m'
